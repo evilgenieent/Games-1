@@ -24,6 +24,13 @@
   };
   grassImage.src = "images/grass.png";
 
+  var trollReady = false;
+  var troll = new Image();
+  troll.src = "images/troll.png";
+  troll.onload = function () {
+    trollReady = true;
+  }
+
 
 // DRAWING THE IMAGES
 
@@ -41,9 +48,14 @@
       ctx.drawImage(grassImage, grassX, 340);
       ctx.drawImage(grassImage, canvas.width - Math.abs(grassX), 340);
     }
-
+    
     Pipes.display();
-    bird.display();
+    
+    if (bird.ready) {
+      bird.display();
+    }
+
+    
   } 
 
 
@@ -80,6 +92,7 @@
 
   addEventListener("keyup", function (e) {
     delete keysDown[e.keyCode];
+    bot.record();
   }, false);
 
 
@@ -95,33 +108,103 @@
 // -------------------------------------------------------------- //
 // MAIN
   
-  // The main method
-  var main = function () {
 
-    var now = Date.now();
-    var delta = now - then;
+// Cross-browser support for requestAnimationFrame
+var w = window;
+requestAnimationFrame = w.requestAnimationFrame ||
+                        w.webkitRequestAnimationFrame ||
+                        w.msRequestAnimationFrame ||
+                        w.mozRequestAnimationFrame;
 
-    render();
+var gameStarted = false;
+var then;
+var grassX;
+var myMath;
+var score;
+var database;
 
-    jumpIfRequested();
-    shiftScreen(delta / 1000);
+window.onload = function() { database = new Database(); main(); }
 
-    then = now;
+function main(){
+  then = Date.now();
+  gameStarted = false;
+  trollShown = false;
+  grassX = 0;
+  score = 0;
+  pipeSet = new Set();
+  myMath = new MyMath();
+  bird = new Bird();
+  jumpsPerformed = new Set();
+  document.body.appendChild(canvas);
 
-    // Request to do this again ASAP
-    requestAnimationFrame(main);
-  };
+  bot = new Bot();
+
+  loop();
+}
+
+// The main method
+function loop() {
+
+  var now = Date.now();
+  var delta = (now - then) * SPEED;
+
+  render();
+
+  jumpIfRequested();
+  shiftScreen(delta / 1000);
+
+  if (TROLL)
+    requestTroll();
+
+  if (BOT)
+    bot.act();
+
+  refreshScore();
+
+  then = now;
+
+  // Request to do this again ASAP
+  if (!bird.isCrashed())
+      requestAnimationFrame(loop);
+  else
+      endGame();
+    
+};
 
 
-  // Cross-browser support for requestAnimationFrame
-  var w = window;
-  requestAnimationFrame = w.requestAnimationFrame ||
-                          w.webkitRequestAnimationFrame ||
-                          w.msRequestAnimationFrame ||
-                          w.mozRequestAnimationFrame;
+function endGame() {
+  bird.crash();
 
+  if (BOT) {
+    bot.save();
+    if (RESET)
+      setTimeout( reset, 300);
+  }
+  else
+    bot.save();
+}
 
+function reset() {
 
-  // Play the game!
-  var then = Date.now();
   main();
+  gameStarted = true;
+
+}
+
+function refreshScore() {
+  document.getElementById("scoreNumber").innerHTML = score;
+}
+
+function requestTroll() {
+
+  if (Math.random() < TROLL_CHANCE && !trollShown && gameStarted) {
+    trollShown = true;
+    setTimeout(function() { trollShown = false }, TROLL_DISPLAY_TIME);
+
+  }
+
+  if (trollShown) {
+    if (trollReady)
+      ctx.drawImage(troll, Math.round(Math.random() * (canvas.width - troll.width)), Math.round(Math.random() * (canvas.height - troll.height)));
+  }
+}

@@ -1,14 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+        <link rel="stylesheet" type="text/css" href="css/style.css">
 		<meta charset="utf-8">
 		<title>Simple Canvas Game</title>
+
+        <script src="js/jquery-2.1.4.js"></script>
+        <script src="js/JumpData.js"></script>
+        <script src="js/BotInit.js"></script>
+        <script src="js/Bot.js"></script>
+        <script src="js/Jump.js"></script>
+        <script src="js/Bird.js"></script>
+        <script src="js/Database.js"></script>
+        <script src="js/Maths.js"></script>
+        <script src="js/Init.js"></script>
+        <script src="js/Pipe.js"></script>
+        <script src="js/Pipes.js"></script>
+        <script src="js/Game.js"></script>
 	</head>
 	<body>
-    <script src="js/Bird.js"></script>
-    <script src="js/Init.js"></script>
-    <script src="js/Pipe.js"></script>
-    <script src="js/Pipes.js"></script>
-		<script src="js/Game.js"></script>
+        <div id="score">
+            <div id="pressSpace"> Press space to start.. </div>
+            Score : <div id="scoreNumber">0</div>
+        </div>
+
+        <div id="menu">
+            <div class="squared">
+                <input type="checkbox" id="bot" onChange="BOT = !BOT;" />
+                <label class="clicker" for="bot"></label>
+                <label class="text" for="bot">Bot</label>
+            </div>
+
+            <div class="squared">
+                <input type="checkbox" id="troll" onChange="TROLL = !TROLL;" />
+                <label class="clicker" for="troll"></label>
+                <label class="text" for="troll">Troll</label>
+            </div>
+
+        </div>
 	</body>
 </html>
